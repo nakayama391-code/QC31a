@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>QC検定3級 模擬試験（品質管理の基本・品質の考え方）</title>
+<style>
+  :root{
+    --bg:#f2f4f7;
+    --card:#ffffff;
+    --text:#1f2937;
+    --sub:#6b7280;
+    --accent:#2563eb;
+    --accent-dark:#1d4ed8;
+    --good:#16a34a;
+    --good-bg:#dcfce7;
+    --bad:#dc2626;
+    --bad-bg:#fee2e2;
+    --border:#e5e7eb;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;padding:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    -webkit-tap-highlight-color:transparent;
+  }
+  #app{
+    max-width:480px;
+    margin:0 auto;
+    min-height:100vh;
+    padding:16px 16px 32px;
+    display:flex;
+    flex-direction:column;
+  }
+  .top-bar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:10px;
+  }
+  .progress-text{
+    font-size:13px;
+    font-weight:700;
+    color:var(--accent-dark);
+  }
+  .progress-bar{
+    width:100%;
+    height:6px;
+    background:var(--border);
+    border-radius:4px;
+    overflow:hidden;
+    margin-bottom:14px;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--accent);
+    border-radius:4px;
+    transition:width .25s ease;
+  }
+  .card{
+    background:var(--card);
+    border-radius:var(--radius);
+    padding:18px;
+    box-shadow:0 1px 3px rgba(0,0,0,.06);
+    margin-bottom:14px;
+  }
+  .meta-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin-bottom:10px;
+  }
+  .badge{
+    display:inline-block;
+    font-size:11px;
+    font-weight:700;
+    padding:4px 9px;
+    border-radius:999px;
+    background:#eef2ff;
+    color:var(--accent-dark);
+    white-space:nowrap;
+  }
+  .badge.type{ background:#fef3c7; color:#92400e; }
+  .badge.diff{ background:#e0e7ff; color:#3730a3; }
+  .chapter-title{
+    font-size:12.5px;
+    color:var(--sub);
+    margin:0 0 8px;
+    line-height:1.4;
+  }
+  .question-text{
+    font-size:16.5px;
+    font-weight:600;
+    line-height:1.6;
+    margin:6px 0 16px;
+    white-space:pre-wrap;
+  }
+  .choice-btn{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    width:100%;
+    text-align:left;
+    background:#fff;
+    border:1.5px solid var(--border);
+    border-radius:12px;
+    padding:12px 14px;
+    margin-bottom:10px;
+    font-size:15px;
+    line-height:1.5;
+    color:var(--text);
+    cursor:pointer;
+    transition:border-color .15s, background .15s;
+  }
+  .choice-btn:active{ background:#f3f4f6; }
+  .choice-letter{
+    flex:0 0 auto;
+    width:26px;
+    height:26px;
+    border-radius:50%;
+    background:var(--accent);
+    color:#fff;
+    font-weight:700;
+    font-size:13px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .choice-btn.correct{
+    border-color:var(--good);
+    background:var(--good-bg);
+  }
+  .choice-btn.correct .choice-letter{ background:var(--good); }
+  .choice-btn.incorrect{
+    border-color:var(--bad);
+    background:var(--bad-bg);
+  }
+  .choice-btn.incorrect .choice-letter{ background:var(--bad); }
+  .choice-btn.disabled{ cursor:default; }
+  .choice-btn[disabled]{ pointer-events:none; }
+
+  .result-banner{
+    text-align:center;
+    font-size:20px;
+    font-weight:800;
+    padding:14px;
+    border-radius:12px;
+    margin-bottom:14px;
+    letter-spacing:1px;
+  }
+  .result-banner.correct{ background:var(--good-bg); color:var(--good); }
+  .result-banner.incorrect{ background:var(--bad-bg); color:var(--bad); }
+
+  .explain-box{
+    background:#f9fafb;
+    border-radius:12px;
+    padding:12px 14px;
+    font-size:14px;
+    line-height:1.7;
+    color:#374151;
+    margin-bottom:8px;
+  }
+  .explain-box h4{
+    margin:0 0 6px;
+    font-size:13px;
+    color:var(--sub);
+    font-weight:700;
+  }
+  .wrong-reasons{
+    margin-top:10px;
+    font-size:13px;
+    color:#4b5563;
+  }
+  .wrong-reasons div{ margin-bottom:4px; }
+
+  .nav-row{
+    display:flex;
+    gap:10px;
+    margin-top:6px;
+  }
+  .nav-btn{
+    flex:1;
+    padding:13px 10px;
+    border-radius:12px;
+    border:none;
+    font-size:15px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .nav-btn.primary{ background:var(--accent); color:#fff; }
+  .nav-btn.secondary{ background:#e5e7eb; color:var(--text); }
+  .nav-btn:disabled{ opacity:.4; cursor:default; }
+
+  .start-screen{ text-align:center; padding-top:10vh; }
+  .start-screen h1{ font-size:20px; margin-bottom:10px; }
+  .start-screen p{ color:var(--sub); font-size:14px; line-height:1.7; }
+  .big-btn{
+    display:block;
+    width:100%;
+    margin-top:20px;
+    padding:15px;
+    background:var(--accent);
+    color:#fff;
+    border:none;
+    border-radius:12px;
+    font-size:16px;
+    font-weight:700;
+    cursor:pointer;
+  }
+
+  .result-screen h2{
+    font-size:18px;
+    margin:0 0 4px;
+  }
+  .score-big{
+    text-align:center;
+    padding:18px 0 6px;
+  }
+  .score-big .num{
+    font-size:44px;
+    font-weight:800;
+    color:var(--accent-dark);
+  }
+  .score-big .label{ font-size:13px; color:var(--sub); }
+  .pass-badge{
+    text-align:center;
+    font-size:22px;
+    font-weight:800;
+    padding:14px;
+    border-radius:12px;
+    margin:10px 0 16px;
+  }
+  .pass-badge.pass{ background:var(--good-bg); color:var(--good); }
+  .pass-badge.fail{ background:var(--bad-bg); color:var(--bad); }
+  .domain-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:10px 0;
+    border-bottom:1px solid var(--border);
+    font-size:14.5px;
+  }
+  .domain-row:last-child{ border-bottom:none; }
+  .domain-row .pct{ font-weight:800; font-size:16px; }
+  .domain-row .pct.ng{ color:var(--bad); }
+  .domain-row .pct.ok{ color:var(--good); }
+  .criteria-note{
+    font-size:12.5px;
+    color:var(--sub);
+    line-height:1.7;
+    margin-top:6px;
+  }
+  .review-grid{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:6px;
+    margin-top:10px;
+  }
+  .review-cell{
+    aspect-ratio:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:8px;
+    font-size:12px;
+    font-weight:700;
+    color:#fff;
+    cursor:pointer;
+    border:none;
+  }
+  .review-cell.ok{ background:var(--good); }
+  .review-cell.ng{ background:var(--bad); }
+  footer.note{
+    text-align:center;
+    font-size:11px;
+    color:#9ca3af;
+    margin-top:18px;
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+const QUESTIONS = [{"id": 1, "chapter": "第1章 品質管理の基本・品質の考え方", "type": "知識問題", "tag": "品質とは何か", "difficulty": "易", "domain": "実践分野", "question": "「品質」という言葉の説明として、最も適切なものはどれか。", "choices": {"A": "製品の外観が美しいことを指す言葉", "B": "製造にかかるコストが低いことを指す言葉", "C": "対象が要求事項をどの程度満たしているかの程度を指す言葉", "D": "検査に合格した製品の割合を指す言葉"}, "answer": "C", "explanation": "品質とは、製品やサービスが顧客やその他の要求事項をどの程度満たしているかという「程度」を表す概念である。外観の美しさやコストの低さは品質を構成する一要素にすぎず、品質そのものの定義ではない。検査合格率は活動の結果を示す指標であり、品質の定義とは異なる。迷ったときは「程度を表す言葉かどうか」で見分けると判断しやすい。", "wrong": {"A": "外観の美しさは品質特性の一例であり、品質全体を定義する言葉ではないため。", "B": "コストの低さは品質とは別の評価軸であるため、定義としては不十分であるため。", "D": "検査合格率は結果指標の一つであり、品質という概念そのものを表していないため。"}}, {"id": 2, "chapter": "第1章 品質管理の基本・品質の考え方", "type": "知識問題", "tag": "顧客要求", "difficulty": "易", "domain": "実践分野", "question": "品質管理における「顧客」の考え方として、最も適切なものはどれか。", "choices": {"A": "製品を購入する社外の人だけを指す", "B": "営業部門が担当する取引先のみを指す", "C": "苦情を申し出た人のみを指す", "D": "自社の製品やサービスを最終的に使用する人や、後工程で受け取る人を含む"}, "answer": "D", "explanation": "品質管理では、最終顧客だけでなく、後工程の作業者や部門も「次の顧客」として捉える考え方がある。これにより、社内のどの工程でも品質を意識した仕事が求められる。社外の購入者のみに限定する考え方は狭すぎる。", "wrong": {"A": "社外の購入者だけに限定すると、社内の後工程への配慮が抜け落ちるため。", "B": "営業部門の取引先に限定するのは品質管理上の顧客概念より狭いため。", "C": "苦情を申し出た人だけを顧客とすると、通常の業務全体を顧客視点で見る考え方から外れるため。"}}, {"id": 3, "chapter": "第1章 品質管理の基本・品質の考え方", "type": "知識問題", "tag": "品質特性", "difficulty": "", "domain": "実践分野", "question": "「要求事項」と「品質特性」の関係についての説明として、最も適切なものはどれか。", "choices": {"A": "要求事項と品質特性はまったく同じ意味であり、区別する必要はない", "B": "品質特性が先に定義され、それに基づいて要求事項が定められる", "C": "要求事項は数値で表され、品質特性は数値で表すことができない", "D": "要求事項は満たすべき内容そのものを指し、品質特性はその要求事項に関連して評価される具体的な特性を指す"}, "answer": "D", "explanation": "要求事項は満たすべき内容で、品質特性はそれに対応して製品やサービスへ設定される具体的特性である。", "wrong": {"A": "同義ではなく役割も段階も異なるため。", "B": "通常は要求事項が先で、品質特性が後であるため。", "C": "品質特性にも数値化できるものが多いため。"}}, {"id": 4, "chapter": "第1章 品質管理の基本・品質の考え方", "type": "知識問題", "tag": "ねらいの品質とできばえの品質", "difficulty": "", "domain": "実践分野", "question": "「ねらいの品質」と「できばえの品質」の関係として、最も適切なものはどれか。", "choices": {"A": "ねらいの品質とできばえの品質は同じ意味であり、使い分ける必要はない", "B": "できばえの品質が先に決まり、それに合わせてねらいの品質を後から設定する", "C": "ねらいの品質は検査結果を指し、できばえの品質は設計図面を指す", "D": "ねらいの品質は設計段階で設定する目標であり、できばえの品質はその目標を製造段階でどの程度実現できたかを示す"}, "answer": "D", "explanation": "ねらいの品質は設計目標、できばえの品質は製造結果である。", "wrong": {"A": "同義ではなく段階も意味も異なるため。", "B": "通常はねらいの品質を先に設定するため。", "C": "定義と一致しないため。"}}, {"id": 5, "chapter": "第1章 品質管理の基本・品質の考え方", "type": "判断問題", "tag": "品質第一", "difficulty": "", "domain": "実践分野", "question": "ある工場で、納期に遅れそうになったため、検査基準を一時的に緩めて出荷量を確保しようとする提案が出た。「品質第一」の考え方に基づく対応として、最も適切なものはどれか。", "choices": {"A": "検査基準を緩めずに、納期遅延の原因を分析し対策案を検討する", "B": "納期優先の方針として提案をそのまま受け入れる", "C": "検査基準を緩めた上で、後から問題が出たら個別に対応する", "D": "出荷だけ先に行い、検査は出荷後にまとめて実施する"}, "answer": "A", "explanation": "品質第一では納期やコストより品質を優先し、基準緩和ではなく原因分析と対策検討を行う。", "wrong": {"B": "納期優先で品質第一に反するため。", "C": "事後対応で未然防止にならないため。", "D": "出荷後検査は不適合流出リスクを高めるため。"}}, {"id": 6, "chapter": "第1章 品質管理の基本・品質の考え方", "type": "判断問題", "tag": "品質とコスト", "difficulty": "", "domain": "実践分野", "question": "「品質とコストの関係」についての考え方として、最も適切なものはどれか。", "choices": {"A": "品質を高めることは常にコストの増加につながるため、両立は不可能である", "B": "コストを最優先すれば、自動的に品質も向上する", "C": "不適合品の流出を防ぐ仕組みを整えることで、手直しや返品などの損失コストを減らせる場合がある", "D": "品質とコストはまったく無関係であり、同時に検討する必要はない"}, "answer": "C", "explanation": "予防コストを適切にかけると損失コスト低減につながる。", "wrong": {"A": "品質向上が常にコスト増とは限らないため。", "B": "コスト最優先で品質向上の根拠はないため。", "D": "品質とコストは相互に影響するため。"}}, {"id": 7, "chapter": "第1章 品質管理の基本・品質の考え方", "type": "判断問題", "tag": "品質と納期", "difficulty": "", "domain": "実践分野", "question": "ある部品加工工場で、納期直前に検査工程を省略して出荷しようとする案が出た。品質管理の考え方として、最も適切な判断はどれか。", "choices": {"A": "納期を守ることが最優先であるため、検査を省略してよい", "B": "検査を省略せず、必要であれば関係部門と納期調整を協議する", "C": "検査は次回出荷分でまとめて行えばよい", "D": "検査済みの製品と未検査の製品を混在させて出荷する"}, "answer": "B", "explanation": "検査省略は不適合流出リスクを高めるため、検査を維持し必要なら納期調整を行う。", "wrong": {"A": "納期優先のみで判断するのは不適切であるため。", "C": "次回まとめ検査では今回分が先に顧客へ渡るおそれがあるため。", "D": "未検査品混在で流出防止の仕組みが機能しないため。"}}, {"id": 8, "chapter": "第1章 品質管理の基本・品質の考え方", "type": "判断問題", "tag": "ばらつき", "difficulty": "", "domain": "実践分野", "question": "「ばらつき」についての考え方として、最も適切なものはどれか。", "choices": {"A": "工程が安定していれば、ばらつきは完全にゼロにできる", "B": "同じ条件で製造しても、製品の特性値には必ず多少のばらつきが生じる", "C": "ばらつきは測定誤差のみによって生じるものである", "D": "ばらつきは管理する必要のない現象である"}, "answer": "B", "explanation": "ばらつきは原材料・設備・作業者・環境など多様な要因で生じ、許容範囲内に収める管理が重要である。", "wrong": {"A": "安定工程でも完全にゼロにはできないため。", "C": "測定誤差だけでなく多様な要因で生じるため。", "D": "品質管理上の重要な管理対象であるため。"}}, {"id": 9, "chapter": "第1章 品質管理の基本・品質の考え方", "type": "判断問題", "tag": "事実に基づく管理", "difficulty": "", "domain": "実践分野", "question": "ある事務処理部門で、入力ミスの件数が増えたという印象を持った担当者が、対策会議で「最近ミスが多い気がする」と発言した。品質管理の考え方として、最も適切な対応はどれか。", "choices": {"A": "担当者の印象を信頼し、すぐに対策を決定する", "B": "印象に基づく発言であっても、多数決で対策を決める", "C": "データの収集は時間がかかるため、今回は印象だけで判断する", "D": "実際の入力ミスの件数や発生状況をデータで確認してから対策を検討する"}, "answer": "D", "explanation": "品質管理では感覚ではなくデータに基づく「事実に基づく管理」を重視する。", "wrong": {"A": "印象だけでは原因と対策がずれる恐れがあるため。", "B": "多数決は事実確認の代替にならないため。", "C": "データ収集省略は誤った原因への対策リスクを高めるため。"}}, {"id": 10, "chapter": "第1章 品質管理の基本・品質の考え方", "type": "判断問題", "tag": "重点指向", "difficulty": "", "domain": "実践分野", "question": "ある店舗運営会社で、複数のクレーム原因のうち、件数が最も多い原因への対応を優先することにした。この考え方に最も近いものはどれか。", "choices": {"A": "重点指向", "B": "三現主義", "C": "SDCA", "D": "日常管理"}, "answer": "A", "explanation": "影響の大きい問題に資源を集中する考え方が重点指向である。", "wrong": {"B": "三現主義は現場・現物・現実を重視する考え方であるため。", "C": "SDCAは標準維持の回し方であるため。", "D": "日常管理は日々の業務維持活動であるため。"}}, {"id": 11, "chapter": "第1章 品質管理の基本・品質の考え方", "type": "判断問題", "tag": "品質とは何か", "difficulty": "", "domain": "実践分野", "question": "ある食品メーカーで、「味は良いが、表示されたアレルゲン情報が一部間違っていた」という製品が見つかった。品質の考え方として、最も適切な評価はどれか。", "choices": {"A": "味が良いため、品質には問題がないと判断する", "B": "アレルゲン情報という重要な要求事項を満たしていないため、品質に問題があると判断する", "C": "表示の誤りは品質とは無関係な事務的な問題として扱う", "D": "販売数が多ければ、品質上の問題は無視してよい"}, "answer": "B", "explanation": "品質は味だけでなく安全性に関わる表示情報も含む要求事項の充足度である。", "wrong": {"A": "味だけでは安全性要求を満たしたとはいえないため。", "C": "アレルゲン表示は安全性に直結し品質に関わるため。", "D": "販売数の多さは品質問題の有無と無関係であるため。"}}, {"id": 12, "chapter": "第1章 品質管理の基本・品質の考え方", "type": "判断問題", "tag": "顧客要求", "difficulty": "", "domain": "実践分野", "question": "ある物流会社で、配送担当者が「自分の仕事は荷物を運ぶことだけであり、荷物の状態には関心がない」と考えていた。品質管理における顧客の考え方から見て、最も適切な指摘はどれか。", "choices": {"A": "荷物を運ぶことだけが仕事であるという考え方は適切である", "B": "荷物の状態は配送担当者の責任範囲外であるため、関心を持つ必要はない", "C": "顧客への意識は営業担当者だけが持てばよい", "D": "配送先の顧客だけでなく、荷物を受け取る後工程の担当者も顧客として意識すべきである"}, "answer": "D", "explanation": "最終顧客だけでなく、社内外の後工程で荷物を受け取る人も顧客として捉える。", "wrong": {"A": "荷物状態への無関心は顧客視点の品質確保に不十分であるため。", "B": "荷物状態は配送品質に直結するため。", "C": "顧客意識は営業担当者だけでなく全関係者に求められるため。"}}, {"id": 13, "chapter": "第1章 品質管理の基本・品質の考え方", "type": "判断問題", "tag": "品質特性", "difficulty": "", "domain": "実践分野", "question": "ある医療事務部門で、患者の受付業務における品質特性として、最も適切なものはどれか。", "choices": {"A": "受付処理にかかる時間や手続きの正確さ", "B": "受付担当者の勤続年数", "C": "受付窓口の家具のデザイン", "D": "受付窓口の数"}, "answer": "A", "explanation": "品質特性は要求事項に直接関わるサービス特性であり、受付時間や正確さが該当する。", "wrong": {"B": "勤続年数は担当者属性であり品質特性そのものではないため。", "C": "家具デザインは付帯要素で中心的品質特性ではないため。", "D": "窓口数は体制情報であり品質特性そのものではないため。"}}, {"id": 14, "chapter": "第1章 品質管理の基本・品質の考え方", "type": "判断問題", "tag": "ねらいの品質とできばえの品質", "difficulty": "", "domain": "実践分野", "question": "ある部品加工工場で、設計段階で寸法の目標値と許容範囲を定めたが、実際の製造工程ではその範囲を外れる製品が一定数発生していた。この状況を品質の考え方として整理すると、最も適切なものはどれか。", "choices": {"A": "ねらいの品質が低かったことが原因であり、設計の見直しのみを行えばよい", "B": "ねらいの品質に対して、できばえの品質が十分に実現できていない状態である", "C": "できばえの品質が高いため、ねらいの品質の設定は不要である", "D": "ねらいの品質とできばえの品質は無関係であるため、製造工程を見直す必要はない"}, "answer": "B", "explanation": "設計段階の目標・許容範囲がねらいの品質、製造結果ができばえの品質であり、範囲外品発生は実現不足を示す。", "wrong": {"A": "設計見直しだけでなく製造工程側要因の確認が必要であるため。", "C": "範囲外品が発生しており、できばえの品質が高いとはいえないため。", "D": "両者は関連しており、工程見直しが必要であるため。"}}, {"id": 15, "chapter": "第1章 品質管理の基本・品質の考え方", "type": "知識問題", "tag": "品質第一", "difficulty": "", "domain": "実践分野", "question": "「品質第一」の考え方を表す説明として、最も適切なものはどれか。", "choices": {"A": "品質よりも納期を優先する考え方", "B": "品質は最終検査だけで確保すればよいという考え方", "C": "売上やコストよりも、まず品質を優先して判断する考え方", "D": "品質に関する判断は現場の感覚だけで行うという考え方"}, "answer": "C", "explanation": "品質第一は、売上・コスト・納期などより品質を優先して判断する基本姿勢である。", "wrong": {"A": "納期優先で品質第一と逆であるため。", "B": "最終検査依存で工程全体での品質確保と異なるため。", "D": "感覚のみの判断は事実に基づく管理と矛盾するため。"}}, {"id": 16, "chapter": "第1章 品質管理の基本・品質の考え方", "type": "計算問題", "tag": "品質とコスト", "difficulty": "", "domain": "手法分野", "question": "ある工場で、1か月に出荷した製品1000個のうち、不適合品が20個発生し、1個あたり3000円の手直しコストがかかった。この月の不適合品による手直しコストの合計はいくらか。", "choices": {"A": "30000円", "B": "60000円", "C": "40000円", "D": "80000円"}, "answer": "B", "explanation": "手直しコスト合計 = 不適合品数20個 × 3000円 = 60000円。", "wrong": {"A": "件数または単価の取り違えによる誤答であるため。", "C": "計算途中で小さく見積もった誤答であるため。", "D": "単価を高く見積もった場合に出やすい誤答であるため。"}}, {"id": 17, "chapter": "第1章 品質管理の基本・品質の考え方", "type": "知識問題", "tag": "品質と納期", "difficulty": "", "domain": "実践分野", "question": "品質管理における「品質と納期」の関係についての説明として、最も適切なものはどれか。", "choices": {"A": "納期を守ることは品質とは無関係であり、検討の対象外である", "B": "納期遅延を避けるためであれば、検査を省略してもよい", "C": "納期は営業部門だけが責任を持つべき事項である", "D": "納期も重要な管理項目であるが、品質を損なわない範囲で達成する必要がある"}, "answer": "D", "explanation": "納期は重要だが、品質を維持しながら達成すべき管理項目である。", "wrong": {"A": "納期は生産計画・工程管理と関係するため。", "B": "検査省略は不適合品流出リスクを高めるため。", "C": "生産部門や品質管理部門も関わるため。"}}, {"id": 18, "chapter": "第1章 品質管理の基本・品質の考え方", "type": "読み取り問題", "tag": "ばらつき", "difficulty": "", "domain": "手法分野", "question": "ある食品工場で、同じ配合のクッキーを5枚抜き取り、重さを測定したところ、28g、30g、29g、31g、27gであった。この結果から読み取れる内容として、最も適切なものはどれか。", "choices": {"A": "5枚とも同じ重さであり、ばらつきは存在しない", "B": "測定方法に誤りがあるため、データそのものが無効である", "C": "ばらつきが大きすぎるため、工程は必ず異常状態にある", "D": "重さには多少のばらつきがあり、すべて同一の値にはなっていない"}, "answer": "D", "explanation": "同一条件でも特性値には多少のばらつきが生じることをデータが示している。", "wrong": {"A": "5枚の値は異なるため。", "B": "測定方法に誤りがある情報はないため。", "C": "この程度のばらつきだけで異常状態とは断定できないため。"}}, {"id": 19, "chapter": "第1章 品質管理の基本・品質の考え方", "type": "知識問題", "tag": "事実に基づく管理", "difficulty": "", "domain": "実践分野", "question": "「事実に基づく管理」の考え方として、最も適切なものはどれか。", "choices": {"A": "データや記録などの事実を確認し、それに基づいて判断する", "B": "経験豊富な担当者の直感を最優先して判断する", "C": "多数決によって決定すれば、事実確認は不要である", "D": "問題が発生したときだけ、事実確認を行えばよい"}, "answer": "A", "explanation": "感覚ではなくデータや記録など客観的事実に基づいて判断することが基本である。", "wrong": {"B": "直感優先は趣旨と異なるため。", "C": "多数決は事実確認の代替にならないため。", "D": "日常的に事実確認することが望ましいため。"}}, {"id": 20, "chapter": "第1章 品質管理の基本・品質の考え方", "type": "判断問題", "tag": "重点指向", "difficulty": "", "domain": "実践分野", "question": "ある部品加工工場で発生した不良の原因を集計したところ、原因Aが60件、原因Bが10件、原因Cが8件、原因Dが2件であった。重点指向の考え方に基づく対応として、最も適切なものはどれか。", "choices": {"A": "件数が少ない原因Dから優先して対策する", "B": "すべての原因に同じ人員と時間を均等に配分して対策する", "C": "件数が最も多い原因Aへの対策を優先的に検討する", "D": "対策の優先順位は決めず、思いついた順に対応する"}, "answer": "C", "explanation": "重点指向は影響の大きい原因に資源を集中する考え方であり、件数最多の原因Aを優先する。", "wrong": {"A": "件数の少ない原因優先では影響の大きい問題対応が後回しになるため。", "B": "均等配分では影響大の原因への対策が手薄になるため。", "D": "優先順位を決めないと資源を効果的に使えないため。"}}, {"id": 21, "chapter": "第1章 品質管理の基本・品質の考え方", "type": "知識問題", "tag": "品質とは何か", "difficulty": "", "domain": "実践分野", "question": "「品質は工程でつくり込む」という考え方の説明として、最も適切なものはどれか。", "choices": {"A": "品質は製造工程の各段階で確保していくべきであるという考え方", "B": "品質は最終検査の段階でのみ確保すればよいという考え方", "C": "品質は出荷後の顧客対応によって確保するものという考え方", "D": "品質は営業部門の説明によって確保されるという考え方"}, "answer": "A", "explanation": "品質は最終検査や出荷後対応だけに頼るのではなく、製造工程の各段階で適切な管理を行い、不適合発生そのものを防ぐという考え方である。", "wrong": {"B": "最終検査だけでは工程内不適合の発生を防げないため。", "C": "出荷後対応は事後対応であり工程でのつくり込みと異なるため。", "D": "営業部門の説明は品質そのものを確保する活動ではないため。"}}, {"id": 22, "chapter": "第1章 品質管理の基本・品質の考え方", "type": "判断問題", "tag": "顧客要求", "difficulty": "", "domain": "実践分野", "question": "ある事務処理部門で、後工程の担当者から「提出される書類のフォーマットが毎回異なり、確認作業に時間がかかる」という指摘があった。品質管理の顧客に関する考え方に基づく対応として、最も適切なものはどれか。", "choices": {"A": "後工程からの指摘であるため、対応の必要はない", "B": "後工程の担当者の要望を確認し、フォーマットを統一する方向で検討する", "C": "フォーマットの統一は手間がかかるため、現状のまま継続する", "D": "後工程の担当者に、確認作業を効率化する工夫を求めるだけにする"}, "answer": "B", "explanation": "後工程担当者も顧客として捉え、要望確認のうえ具体的改善を検討する。", "wrong": {"A": "後工程の指摘を無視すると作業効率や品質に悪影響を及ぼすため。", "C": "現状維持では課題解消にならないため。", "D": "改善負担を後工程側だけに求めるのは一方的であるため。"}}, {"id": 23, "chapter": "第1章 品質管理の基本・品質の考え方", "type": "読み取り問題", "tag": "品質特性", "difficulty": "", "domain": "手法分野", "question": "ある家電製品について、社内で重視する品質特性を整理したところ、「動作の安定性」「操作のしやすさ」「外観のデザイン」「省電力性能」の4項目が挙げられた。これらに共通する説明として、最も適切なものはどれか。", "choices": {"A": "いずれも製造コストの内訳を示す項目である", "B": "いずれも検査員の評価スキルを示す項目である", "C": "いずれも顧客の要求事項に関連する製品の特性である", "D": "いずれも出荷後の返品件数を示す項目である"}, "answer": "C", "explanation": "4項目はいずれも製品が顧客要求をどの程度満たすかに関わる品質特性である。", "wrong": {"A": "コスト内訳ではなく性能・使いやすさ等の特性であるため。", "B": "検査員スキルではなく製品自体の特性であるため。", "D": "返品件数のような結果指標ではないため。"}}, {"id": 24, "chapter": "第1章 品質管理の基本・品質の考え方", "type": "知識問題", "tag": "ねらいの品質とできばえの品質", "difficulty": "", "domain": "実践分野", "question": "設計段階で定めた目標値や仕様の集合を指す用語として、最も適切なものはどれか。", "choices": {"A": "ねらいの品質", "B": "できばえの品質", "C": "検査基準のみ", "D": "工程能力"}, "answer": "A", "explanation": "ねらいの品質は設計段階で定める目標品質。できばえの品質は実際の製造結果である。", "wrong": {"B": "製造結果として実現された品質であるため。", "C": "検査基準は判断基準であり設計目標そのものではないため。", "D": "工程能力はばらつき抑制度を示す指標であるため。"}}, {"id": 25, "chapter": "第1章 品質管理の基本・品質の考え方", "type": "判断問題", "tag": "品質第一", "difficulty": "", "domain": "実践分野", "question": "ある企業で、品質に関する判断基準を社員に説明する際、「品質第一」の考え方に最も合致する説明はどれか。", "choices": {"A": "品質に関する判断は、コストや納期よりも優先して検討する", "B": "売上目標を達成できるなら、多少の品質低下は許容してよい", "C": "品質は管理部門だけが考えればよい問題である", "D": "品質に関する判断は、その場の感覚で十分である"}, "answer": "A", "explanation": "品質第一はコストや納期より品質を優先して判断する基本姿勢で、全社員で共有すべき考え方である。", "wrong": {"B": "売上のための品質低下容認は品質第一に反するため。", "C": "品質は全部門・全社員が意識すべき事項であるため。", "D": "感覚だけの判断は事実に基づく管理と矛盾するため。"}}, {"id": 26, "chapter": "第1章 品質管理の基本・品質の考え方", "type": "判断問題", "tag": "品質とコスト", "difficulty": "", "domain": "実践分野", "question": "ある工場で、検査体制を強化するための投資について検討している。品質とコストの関係を踏まえた判断として、最も適切なものはどれか。", "choices": {"A": "不適合品の流出による損失コストと、検査体制強化のコストを比較して検討する", "B": "検査体制の強化は常にコストの無駄であるため、投資を行わない", "C": "検査体制の強化は品質部門だけの問題であり、コストとは無関係に決めてよい", "D": "投資額が大きいほど、必ず品質が向上すると判断する"}, "answer": "A", "explanation": "損失コストと予防コストを比較し、全体として合理的に判断する。", "wrong": {"B": "損失コスト削減につながる場合もあり常に無駄ではないため。", "C": "投資判断はコスト観点も含めて検討すべきであるため。", "D": "投資額の大きさが必ず品質向上につながるわけではないため。"}}, {"id": 27, "chapter": "第1章 品質管理の基本・品質の考え方", "type": "判断問題", "tag": "品質と納期", "difficulty": "", "domain": "実践分野", "question": "ある物流会社で、配送遅延が増えていることを受け、配送スピードを優先するために荷物の積み込み確認作業を簡略化する案が検討された。最も適切な判断はどれか。", "choices": {"A": "確認作業を簡略化し、配送スピードを最優先する", "B": "確認作業は形だけ残し、実質的には省略する", "C": "確認作業は維持し、配送遅延の原因を分析したうえで改善策を検討する", "D": "確認作業の簡略化は現場の判断に任せ、会社としては関与しない"}, "answer": "C", "explanation": "納期改善は重要だが、確認作業の簡略化は誤配送など品質リスクを高めるため、確認を維持し原因分析に基づく改善を行う。", "wrong": {"A": "確認簡略化は誤配送リスクを高めるため。", "B": "形だけ残して実質省略では確認目的を果たせないため。", "D": "現場任せでは判断基準が統一されずリスク管理上問題であるため。"}}, {"id": 28, "chapter": "第1章 品質管理の基本・品質の考え方", "type": "知識問題", "tag": "ばらつき", "difficulty": "", "domain": "実践分野", "question": "品質管理における「ばらつき」の主な発生要因として挙げられるものはどれか。", "choices": {"A": "顧客からの注文数のみ", "B": "原材料、設備、作業者、作業方法、環境などの要因", "C": "営業部門の売上目標のみ", "D": "会社の設立年数のみ"}, "answer": "B", "explanation": "ばらつきは原材料・設備・作業者・作業方法・環境といった要因の変動によって生じる。", "wrong": {"A": "注文数は生産計画に関わる情報で、製品特性ばらつきの直接要因ではないため。", "C": "売上目標は経営指標であり、ばらつき要因ではないため。", "D": "設立年数は製品特性ばらつきと直接関係しないため。"}}, {"id": 29, "chapter": "第1章 品質管理の基本・品質の考え方", "type": "判断問題", "tag": "事実に基づく管理", "difficulty": "", "domain": "実践分野", "question": "ある店舗運営会社で、店長が「最近、レジでの会計ミスが減った気がする」と発言した。これに対して品質管理の考え方に基づく適切な確認方法はどれか。", "choices": {"A": "店長の発言をそのまま記録に残し、対策を終了とする", "B": "一定期間の会計ミスの件数を記録から集計し、実際に減少しているかを確認する", "C": "他の店舗の店長にも同じ印象があるか聞いて回るだけにする", "D": "会計ミスは目に見えにくい問題のため、確認自体を行わない"}, "answer": "B", "explanation": "感覚的な印象だけでなく、実際のデータを集計して現状を客観的に確認することが事実に基づく管理の基本である。", "wrong": {"A": "印象をそのまま記録するだけでは客観的事実の確認にならないため。", "C": "他店長の印象は参考情報にはなるが客観的データ確認の代わりにならないため。", "D": "確認しないままでは実際の状況を把握できないため。"}}, {"id": 30, "chapter": "第1章 品質管理の基本・品質の考え方", "type": "判断問題", "tag": "重点指向", "difficulty": "", "domain": "実践分野", "question": "ある食品工場で、月ごとの不適合品の発生原因を分析した結果、特定の原因が継続して上位を占めていることが分かった。重点指向の考え方に基づく今後の対応として、最も適切なものはどれか。", "choices": {"A": "毎月、異なる原因に注目先を変えて対応する", "B": "上位の原因は対応が難しいため、下位の原因から着手する", "C": "上位の原因に絞って改善活動の資源を集中させる", "D": "原因の分析結果は参考程度にとどめ、対応は現場の感覚に委ねる"}, "answer": "C", "explanation": "継続して影響の大きい原因に資源を集中させ、優先的に改善活動を行うことが重点指向の基本である。", "wrong": {"A": "注目先を頻繁に変えると影響の大きい原因への対応が定着しないため。", "B": "下位から着手すると最も影響の大きい問題への対応が後回しになるため。", "D": "分析結果を参考程度にとどめるとデータに基づく改善効果が十分に得られないため。"}}];
+
+const state = {
+  screen: 'start',   // start | quiz | result
+  index: 0,
+  answers: new Array(QUESTIONS.length).fill(null),
+};
+
+function el(html){
+  const t = document.createElement('template');
+  t.innerHTML = html.trim();
+  return t.content.firstElementChild;
+}
+
+function domainLabel(d){ return d; }
+
+function render(){
+  const app = document.getElementById('app');
+  app.innerHTML = '';
+  if(state.screen === 'start'){
+    app.appendChild(renderStart());
+  } else if(state.screen === 'quiz'){
+    app.appendChild(renderTopBar());
+    app.appendChild(renderQuiz());
+  } else if(state.screen === 'result'){
+    app.appendChild(renderResult());
+  }
+  window.scrollTo(0,0);
+}
+
+function renderStart(){
+  const wrap = el(`
+    <div class="start-screen">
+      <h1>QC検定3級 模擬試験</h1>
+      <p>品質管理の基本・品質の考え方（全${QUESTIONS.length}問）<br>
+      1問ずつ回答し、最後に正答率と合否判定を確認できます。</p>
+      <button class="big-btn" id="startBtn">第1問を開始する</button>
+    </div>
+  `);
+  wrap.querySelector('#startBtn').addEventListener('click', () => {
+    state.screen = 'quiz';
+    state.index = 0;
+    render();
+  });
+  return wrap;
+}
+
+function renderTopBar(){
+  const total = QUESTIONS.length;
+  const cur = state.index + 1;
+  const pct = Math.round((cur-1)/total*100);
+  const wrap = el(`
+    <div>
+      <div class="top-bar">
+        <span class="progress-text">[ ${cur} / ${total}問 ]</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;"></div></div>
+    </div>
+  `);
+  return wrap;
+}
+
+function renderQuiz(){
+  const q = QUESTIONS[state.index];
+  const answered = state.answers[state.index];
+  const card = el(`<div class="card"></div>`);
+
+  const meta = el(`
+    <div>
+      <div class="meta-row">
+        <span class="badge">${q.domain}</span>
+        <span class="badge type">${q.type}</span>
+        ${q.difficulty ? `<span class="badge diff">難易度：${q.difficulty}</span>` : ''}
+      </div>
+      <p class="chapter-title">${q.chapter}｜論点：${q.tag}</p>
+      <p class="question-text">${q.question}</p>
+    </div>
+  `);
+  card.appendChild(meta);
+
+  const order = ['A','B','C','D'];
+  const choicesWrap = document.createElement('div');
+
+  order.forEach(letter => {
+    const text = q.choices[letter];
+    const btn = el(`
+      <button class="choice-btn" data-letter="${letter}">
+        <span class="choice-letter">${letter}</span>
+        <span>${text}</span>
+      </button>
+    `);
+    if(answered){
+      btn.disabled = true;
+      btn.classList.add('disabled');
+      if(letter === q.answer){
+        btn.classList.add('correct');
+      } else if(letter === answered && answered !== q.answer){
+        btn.classList.add('incorrect');
+      }
+    } else {
+      btn.addEventListener('click', () => {
+        state.answers[state.index] = letter;
+        render();
+      });
+    }
+    choicesWrap.appendChild(btn);
+  });
+  card.appendChild(choicesWrap);
+
+  if(answered){
+    const isCorrect = answered === q.answer;
+    const banner = el(`
+      <div class="result-banner ${isCorrect ? 'correct' : 'incorrect'}">
+        ${isCorrect ? '⭕ 正解' : '❌ 不正解'}
+      </div>
+    `);
+    card.appendChild(banner);
+
+    let wrongHtml = '';
+    order.filter(l => l !== q.answer).forEach(l => {
+      if(q.wrong && q.wrong[l]){
+        wrongHtml += `<div><strong>${l}が違う理由：</strong>${q.wrong[l]}</div>`;
+      }
+    });
+
+    const explain = el(`
+      <div class="explain-box">
+        <h4>正解：${q.answer} ／ 解説</h4>
+        <div>${q.explanation}</div>
+        ${wrongHtml ? `<div class="wrong-reasons">${wrongHtml}</div>` : ''}
+      </div>
+    `);
+    card.appendChild(explain);
+
+    const isLast = state.index === QUESTIONS.length - 1;
+    const nav = el(`
+      <div class="nav-row">
+        <button class="nav-btn secondary" id="prevBtn" ${state.index===0?'disabled':''}>◀ 前の問題</button>
+        <button class="nav-btn primary" id="nextBtn">${isLast ? '結果を見る' : '次の問題 ▶'}</button>
+      </div>
+    `);
+    nav.querySelector('#prevBtn').addEventListener('click', () => {
+      if(state.index > 0){ state.index -= 1; render(); }
+    });
+    nav.querySelector('#nextBtn').addEventListener('click', () => {
+      if(isLast){
+        state.screen = 'result';
+      } else {
+        state.index += 1;
+      }
+      render();
+    });
+    card.appendChild(nav);
+  }
+
+  return card;
+}
+
+function renderResult(){
+  const total = QUESTIONS.length;
+  let correctCount = 0;
+  const domainStats = {};
+
+  QUESTIONS.forEach((q, i) => {
+    const ans = state.answers[i];
+    const isCorrect = ans === q.answer;
+    if(isCorrect) correctCount++;
+    if(!domainStats[q.domain]) domainStats[q.domain] = {correct:0, total:0};
+    domainStats[q.domain].total++;
+    if(isCorrect) domainStats[q.domain].correct++;
+  });
+
+  const overallPct = Math.round((correctCount/total)*1000)/10;
+
+  const methodStat = domainStats['手法分野'] || {correct:0,total:0};
+  const practiceStat = domainStats['実践分野'] || {correct:0,total:0};
+  const methodPct = methodStat.total ? Math.round((methodStat.correct/methodStat.total)*1000)/10 : null;
+  const practicePct = practiceStat.total ? Math.round((practiceStat.correct/practiceStat.total)*1000)/10 : null;
+
+  const overallOk = overallPct >= 70;
+  const methodOk = methodPct === null ? true : methodPct >= 50;
+  const practiceOk = practicePct === null ? true : practicePct >= 50;
+  const pass = overallOk && methodOk && practiceOk;
+
+  const wrap = el(`<div class="result-screen"></div>`);
+
+  const card1 = el(`
+    <div class="card">
+      <h2>最終結果</h2>
+      <div class="score-big">
+        <div class="num">${overallPct}%</div>
+        <div class="label">全体正答率（${correctCount} / ${total}問）</div>
+      </div>
+      <div class="pass-badge ${pass ? 'pass' : 'fail'}">${pass ? '合格' : '不合格'}</div>
+
+      <div class="domain-row">
+        <span>手法分野</span>
+        <span class="pct ${methodPct===null ? '' : (methodPct>=50?'ok':'ng')}">${methodPct===null?'―':methodPct+'%'} <small style="font-weight:400;color:var(--sub);">(${methodStat.correct}/${methodStat.total})</small></span>
+      </div>
+      <div class="domain-row">
+        <span>実践分野</span>
+        <span class="pct ${practicePct===null ? '' : (practicePct>=50?'ok':'ng')}">${practicePct===null?'―':practicePct+'%'} <small style="font-weight:400;color:var(--sub);">(${practiceStat.correct}/${practiceStat.total})</small></span>
+      </div>
+
+      <p class="criteria-note">
+        合格基準：全体正答率70%以上、かつ手法分野・実践分野それぞれ概ね50%以上。<br>
+        どちらかの分野が50%未満の場合は不合格となります。
+      </p>
+    </div>
+  `);
+  wrap.appendChild(card1);
+
+  const reviewCells = QUESTIONS.map((q,i) => {
+    const ok = state.answers[i] === q.answer;
+    return `<button class="review-cell ${ok?'ok':'ng'}" data-idx="${i}">${i+1}</button>`;
+  }).join('');
+
+  const card2 = el(`
+    <div class="card">
+      <h2 style="font-size:15px;margin:0 0 4px;">問題別 正誤一覧</h2>
+      <p style="font-size:12px;color:var(--sub);margin:0 0 4px;">タップすると該当問題の解説に戻れます</p>
+      <div class="review-grid">${reviewCells}</div>
+    </div>
+  `);
+  card2.querySelectorAll('.review-cell').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.index = parseInt(btn.dataset.idx, 10);
+      state.screen = 'quiz';
+      render();
+    });
+  });
+  wrap.appendChild(card2);
+
+  const retryBtn = el(`<button class="big-btn" id="retryBtn">もう一度挑戦する</button>`);
+  retryBtn.addEventListener('click', () => {
+    state.screen = 'start';
+    state.index = 0;
+    state.answers = new Array(QUESTIONS.length).fill(null);
+    render();
+  });
+  wrap.appendChild(retryBtn);
+
+  wrap.appendChild(el(`<footer class="note">QC検定3級 模擬試験アプリ（品質管理の基本・品質の考え方 全${total}問）</footer>`));
+
+  return wrap;
+}
+
+render();
+</script>
+</body>
+</html>
